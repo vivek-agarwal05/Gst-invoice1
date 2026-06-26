@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GST Invoice Generator V2</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+
+<div class="split-layout">
+  
+  <aside class="editor-panel">
+    
+    <div class="editor-header">
+      <h2>Invoice Editor</h2>
+      <div class="action-buttons">
+        <button id="btn-save-invoice" class="btn-success">💾 Save</button>
+        <button id="btn-download-pdf" class="btn-primary">📄 PDF</button>
+        <button id="btn-print" class="btn-secondary">🖨 Print</button>
+        <button id="btn-clear-form" class="btn-danger">🗑 Clear</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Invoice Details</h3>
+      <div class="input-grid">
+        <div><label>Invoice No.</label><input type="text" id="invoiceNumber"></div>
+        <div><label>Date</label><input type="date" id="invoiceDate"></div>
+        <div>
+          <label>Payment Mode</label>
+          <select id="paymentMode">
+            <option value="RTGS">RTGS</option>
+            <option value="NEFT">NEFT</option>
+            <option value="CASH">CASH</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Company & Client</h3>
+      <div class="input-grid">
+        <div><label>Seller Name</label><input type="text" id="sellerName"></div>
+        <div><label>Buyer Name</label><input type="text" id="buyerName"></div>
+        <div><label>Seller GSTIN</label><input type="text" id="sellerGST"></div>
+        <div><label>Buyer GSTIN</label><input type="text" id="buyerGST"></div>
+      </div>
+      <div class="input-grid">
+        <div><label>Seller Address</label><input type="text" id="sellerAddress"></div>
+        <div><label>Buyer Address</label><input type="text" id="buyerAddress"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Line Items</h3>
+      <div id="editor-items-container"></div>
+      <button id="btn-add-item" class="btn-outline" style="margin-top: 10px;">+ Add New Item</button>
+    </div>
+
+    <div class="card">
+      <h3>Tax & Adjustments</h3>
+      <div style="margin-bottom: 15px;">
+        <label style="margin-right: 15px;"><input type="radio" name="gstMode" value="cgst_sgst" checked> CGST + SGST</label>
+        <label style="margin-right: 15px;"><input type="radio" name="gstMode" value="igst"> IGST</label>
+        <label><input type="radio" name="gstMode" value="none"> No Tax</label>
+      </div>
+      <div class="input-grid">
+        <div><label>Tax Rate (%)</label><input type="number" id="taxRate" value="18"></div>
+        <div><label>Freight / Other Charges (₹)</label><input type="number" id="freightCharges" value="0"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Images</h3>
+      <div class="input-grid">
+        <div><label>Logo</label><input type="file" id="uploadLogo" accept="image/*"></div>
+        <div><label>Signature</label><input type="file" id="uploadSignature" accept="image/*"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Saved Invoices</h3>
+      <table class="history-table">
+        <thead><tr><th>Invoice No.</th><th>Date</th><th>Action</th></tr></thead>
+        <tbody id="history-tbody"></tbody>
+      </table>
+    </div>
+
+  </aside>
+
+  <main class="preview-panel">
+    
+    <div id="invoice-document" class="a4-page">
+      
+      <div class="doc-title">Tax Invoice</div>
+
+      <header class="grid-30-70 top-border bottom-border">
+        <div class="seller-box right-border padding-box">
+          <img id="prev-logo" src="" style="max-height: 40px; display: none; margin-bottom: 5px;">
+          <h2 id="prev-sellerName" style="font-size: 13px;">Seller Name</h2>
+          <p id="prev-sellerAddress"></p>
+          <p><strong>GSTIN:</strong> <span id="prev-sellerGST"></span></p>
+        </div>
+        <div class="meta-box padding-box">
+          <div class="meta-grid">
+            <div><p class="label">Invoice No.</p><p id="prev-invoiceNumber" class="bold"></p></div>
+            <div><p class="label">Dated</p><p id="prev-invoiceDate" class="bold"></p></div>
+            <div><p class="label">Mode of Payment</p><p id="prev-paymentMode" class="bold"></p></div>
+          </div>
+        </div>
+      </header>
+
+      <section class="grid-30-70 bottom-border">
+        <div class="buyer-box right-border padding-box">
+          <p class="label">Buyer (Bill to)</p>
+          <h3 id="prev-buyerName" style="font-size: 12px;"></h3>
+          <p id="prev-buyerAddress"></p>
+          <p><strong>GSTIN:</strong> <span id="prev-buyerGST"></span></p>
+        </div>
+        <div class="shipping-box padding-box">
+          </div>
+      </section>
+
+      <table class="items-table bottom-border">
+        <thead>
+          <tr>
+            <th style="width: 5%;">Sl</th>
+            <th style="width: 45%; text-align: left;">Description</th>
+            <th style="width: 10%;">HSN</th>
+            <th style="width: 10%;">Qty</th>
+            <th style="width: 15%;">Rate</th>
+            <th style="width: 15%;">Amount</th>
+          </tr>
+        </thead>
+        <tbody id="preview-items-tbody"></tbody>
+        <tr style="height: 20px;"><td colspan="6" style="border: none;"></td></tr>
+      </table>
+
+      <footer class="grid-40-60">
+        <div class="words-box right-border padding-box">
+          <p class="label">Amount Chargeable (in words)</p>
+          <p id="prev-words" class="bold" style="margin-bottom: 15px;"></p>
+          
+          <p class="label">Declaration</p>
+          <p style="font-size: 9px;">We declare that this invoice shows the actual price of the goods described and that all particulars are true and correct.</p>
+        </div>
+        
+        <div class="totals-box padding-box">
+          
+          <div class="summary-line"><span>Taxable Amount</span> <span id="prev-taxable">₹ 0.00</span></div>
+          <div class="summary-line" id="line-cgst"><span>CGST</span> <span id="prev-cgst">₹ 0.00</span></div>
+          <div class="summary-line" id="line-sgst"><span>SGST</span> <span id="prev-sgst">₹ 0.00</span></div>
+          <div class="summary-line" id="line-igst" style="display: none;"><span>IGST</span> <span id="prev-igst">₹ 0.00</span></div>
+          <div class="summary-line"><span>Round Off</span> <span id="prev-roundoff">₹ 0.00</span></div>
+          <div class="summary-line bold" style="font-size: 13px; border-top: 1px solid #000; padding-top: 4px; margin-bottom: 10px;">
+            <span>Grand Total</span> <span id="prev-total">₹ 0.00</span>
+          </div>
+
+          <div id="tax-breakup-container"></div>
+          
+          <div style="text-align: right; margin-top: 30px;">
+            <p style="font-size: 10px; margin-bottom: 40px;">for <span id="prev-authName" class="bold"></span></p>
+            <img id="prev-signature" src="" style="max-height: 40px; display: none; margin-left: auto;">
+            <p style="border-top: 1px solid #000; display: inline-block; padding-top: 2px;">Authorised Signatory</p>
+          </div>
+
+        </div>
+      </footer>
+      
+      <div style="text-align: center; font-size: 9px; padding-top: 10px; border-top: 1px solid #000;">This is a Computer Generated Invoice</div>
+
+    </div>
+  </main>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+              </html>
+  
