@@ -1,0 +1,80 @@
+/* --- RESET & BASE --- */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Arial, sans-serif; background: #e2e8f0; color: #1e293b; font-size: 13px; }
+
+/* --- SPLIT LAYOUT --- */
+.split-layout { display: flex; height: 100vh; overflow: hidden; }
+
+/* Left Editor */
+.editor-panel { width: 40%; background: #f8fafc; padding: 20px; overflow-y: auto; border-right: 1px solid #cbd5e1; }
+.editor-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.card { background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 15px; }
+.card h3 { font-size: 14px; margin-bottom: 10px; color: #334155; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; }
+.input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+label { display: block; font-size: 11px; font-weight: 600; color: #64748b; margin-bottom: 3px; }
+input, select { width: 100%; padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 12px; }
+
+/* Buttons */
+button { padding: 6px 12px; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+.btn-primary { background: #3b82f6; color: white; }
+.btn-secondary { background: #64748b; color: white; }
+.btn-success { background: #10b981; color: white; }
+.btn-danger { background: #ef4444; color: white; }
+.btn-outline { background: transparent; border: 1px solid #3b82f6; color: #3b82f6; width: 100%; }
+.editor-item-row { display: grid; grid-template-columns: 3fr 1fr 1fr 1fr auto; gap: 5px; margin-bottom: 5px; }
+
+/* Right Preview */
+.preview-panel { width: 60%; padding: 20px; overflow-y: auto; display: flex; justify-content: center; align-items: flex-start; }
+
+/* --- THE A4 CANVAS (STRICT DIMENSIONS) --- */
+.a4-page {
+  width: 210mm;
+  min-height: 297mm;
+  background: white;
+  padding: 12mm;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  font-family: Arial, sans-serif;
+  font-size: 10.5px;
+  color: #000;
+  border: 1px solid #000;
+}
+
+/* --- INVOICE TYPOGRAPHY & GRIDS --- */
+.doc-title { text-align: center; font-size: 15px; font-weight: 700; padding-bottom: 5px; text-transform: uppercase; }
+.bold { font-weight: 700; }
+.label { font-size: 9px; color: #555; }
+.padding-box { padding: 8px; }
+.top-border { border-top: 1px solid #000; }
+.bottom-border { border-bottom: 1px solid #000; }
+.right-border { border-right: 1px solid #000; }
+
+.grid-30-70 { display: grid; grid-template-columns: 35% 65%; } /* Adjusted slightly for visual balance */
+.grid-40-60 { display: grid; grid-template-columns: 45% 55%; }
+
+.meta-grid { display: grid; grid-template-columns: 1fr 1fr; row-gap: 8px; }
+
+/* Tables */
+.items-table { width: 100%; border-collapse: collapse; }
+.items-table th { border-bottom: 1px solid #000; border-right: 1px solid #ccc; padding: 5px; background: #f8f8f8; }
+.items-table td { border-bottom: 1px solid #ccc; border-right: 1px solid #ccc; padding: 5px; vertical-align: top; }
+.items-table th:last-child, .items-table td:last-child { border-right: none; text-align: right; }
+
+.summary-line { display: flex; justify-content: space-between; margin-bottom: 3px; }
+
+/* Dynamic Tax Table inside Footer */
+.inv-tax-table { width: 100%; border-collapse: collapse; font-size: 9.5px; margin-top: 10px; }
+.inv-tax-table th { background: #f0f0f0; border: 1px solid #aaa; padding: 3px 4px; font-size: 9px; text-align: left; }
+.inv-tax-table td { border: 1px solid #aaa; padding: 3px 4px; }
+
+/* History Table in Editor */
+.history-table { width: 100%; font-size: 12px; border-collapse: collapse; }
+.history-table th, .history-table td { padding: 6px; border-bottom: 1px solid #e2e8f0; text-align: left; }
+
+/* --- PRINT MEDIA QUERY --- */
+@media print {
+  .split-layout { display: block; height: auto; overflow: visible; }
+  .editor-panel { display: none !important; }
+  .preview-panel { width: 100%; padding: 0; display: block; }
+  .a4-page { width: 100%; min-height: auto; margin: 0; padding: 0; box-shadow: none; border: 1.5px solid #000; }
+  @page { size: A4; margin: 8mm; }
+}
